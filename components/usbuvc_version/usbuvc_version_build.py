@@ -411,9 +411,12 @@ env.Append(CPPPATH=[component_dir])
 if sources_to_add:
     objects = []
     for src in sources_to_add:
+        # SCons honors an explicit target suffix. Leaving .cpp here creates
+        # an ELF file named .cpp, which can then be compiled as source. Keep
+        # the original suffix for uniqueness, but always end objects in .o.
         target = os.path.join(
             "$BUILD_DIR", "usbuvc_version_objects",
-            os.path.relpath(src, component_dir).replace("..", "_external"),
+            os.path.relpath(src, component_dir).replace("..", "_external") + ".o",
         )
         objects.extend(env.Object(target=target, source=src))
 

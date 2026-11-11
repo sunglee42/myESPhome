@@ -148,7 +148,11 @@ ESP_JPEG_SOURCE_DIR=/path/to/idf-extra-components/esp_jpeg \
 解碼器輸入回呼的 `unsigned int` 改為 `size_t`，以符合 64-bit 主機 ABI；
 JPEG 解碼邏輯仍使用實際 Espressif 程式碼。
 
-本次上述設定、程式碼產生及五項測試通過。
+設定、程式碼產生與影像處理測試已通過。
+另可安裝 `SCons==4.11.1` 執行真實 SCons 回歸測試，包含首次與增量建置，
+確認物件檔輸出使用 `.cpp.o` 等名稱，不會將 ELF 二進位檔寫成 `.cpp`。
+更新這項建置路徑修正後，請先在 ESPHome 執行 **Clean Build Files** 再重新編譯，
+以清除舊的錯誤建置產物。
 完整 ESP32 韌體建置仍受工具鏈套件下載存取限制，尚未完成；
 **尚無實體 UVC 鏡頭或板子的端到端驗證**。
 

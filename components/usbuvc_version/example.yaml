@@ -1,0 +1,80 @@
+# ESP32-S3 + USB UVC MJPEG camera + ESP-DL inference.
+# USB D-: GPIO19, D+: GPIO20. Supply the camera with external 5V and common GND.
+esphome:
+  name: s3-usbuvc-version
+
+esp32:
+  variant: esp32s3
+  flash_size: 16MB
+  # Required by the upstream ESP-DL SCons build script.
+  toolchain: platformio
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  hardware_uart: UART0
+
+external_components:
+  - source:
+      type: local
+      path: ..
+    components: [usbuvc, usbuvc_version]
+
+usbuvc:
+  id: my_webcam
+  name: USB Camera
+  # Set vid/pid to select a specific camera; omitted means any UVC camera.
+  resolution: 480X320
+  fps: 15
+  max_framerate: 15 fps
+  start_streaming_at_init: true
+
+usbuvc_version:
+  id: my_vision
+  usbuvc_id: my_webcam
+  model_family: human_face_detect
+  # Maximum decoded dimensions, not a forced capture resolution.
+  # Matches the configured 480x320 capture size; smaller formats also fit.
+  frame_width: 480
+  frame_height: 320
+  max_jpeg_size: 262144
+  detection_interval_ms: 10000
+  on_event:
+    - logger.log:
+        format: 'Detected %d objects: %s'
+        args: [object_count, summary.c_str()]
+
+text_sensor:
+  - platform: usbuvc
+    usbuvc_id: my_webcam
+    name: Camera formats
+  - platform: usbuvc_version
+    usbuvc_version_id: my_vision
+    detection:
+      name: Detection summary
+
+select:
+  - platform: usbuvc
+    usbuvc_id: my_webcam
+    name: Camera resolution and FPS
+
+button:
+  - platform: template
+    name: Start inference
+    on_press:
+      - usbuvc_version.start:
+          id: my_vision
+  - platform: template
+    name: Stop inference
+    on_press:
+      - usbuvc_version.stop:
+          id: my_vision
+  - platform: template
+    name: Run inference
+    on_press:
+      - usbuvc_version.inference:
+          id: my_vision

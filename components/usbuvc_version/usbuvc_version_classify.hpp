@@ -1,0 +1,30 @@
+// SPDX-FileCopyrightText: 2026 youkorr
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Self-contained classification wrapper for the vision ESPHome component.
+//
+// Used when USBUVC_VERSION_FAMILY selects a classification model:
+//   5 = imagenet_cls              (ImageNet 1000 classes, MobileNetV2)
+//   6 = hand_gesture_recognition  (HandGesture classes, MobileNetV2 0.5)
+#pragma once
+
+#include "dl_cls_base.hpp"
+
+namespace usbuvc_version_classify {
+class VisionClassifyImpl : public dl::cls::ClsImpl {
+ public:
+  VisionClassifyImpl(const char *model_name);
+};
+}  // namespace usbuvc_version_classify
+
+class VisionClassify {
+ public:
+  VisionClassify();
+  ~VisionClassify();
+
+  std::vector<dl::cls::result_t> &run(const dl::image::img_t &img);
+  void set_topk(int topk);
+  void set_score_thr(float score_thr);
+
+ private:
+  usbuvc_version_classify::VisionClassifyImpl *m_impl{nullptr};
+};

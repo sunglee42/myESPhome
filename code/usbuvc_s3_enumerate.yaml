@@ -1,0 +1,24 @@
+# USB descriptor enumeration only. No video stream, Wi-Fi, API or PSRAM needed.
+# Camera D-: GPIO19; D+: GPIO20; external 5V supply; common GND.
+# Flash and monitor via a separate USB-UART bridge (UART0).
+esphome:
+  name: uvc-s3-enumerate
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+    advanced:
+      include_builtin_idf_components: [usb]
+
+logger:
+  hardware_uart: UART0
+  level: DEBUG
+  baud_rate: 115200
+
+external_components:
+  - source: github://sunglee42/myESPhome@work
+    components: [usbuvc_enum]
+    refresh: 1d
+
+usbuvc_enum:
